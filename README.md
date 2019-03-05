@@ -1,6 +1,6 @@
-# simu_benchmark
+# Sim Benchmark
 
-a simple benchmark for pygazebo and pybullet simulator
+A simple benchmark for pygazebo and pybullet simulator
 
 
 # Install of PyBullet
