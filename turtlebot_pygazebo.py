@@ -9,8 +9,12 @@ import time
 import psutil
 import os
 
+enable_camera = True
 bot.initialize()
-world = bot.new_world_from_file("./turtlebot.world")
+if enable_camera:
+    world = bot.new_world_from_file("./turtlebot_camera.world")
+else:
+    world = bot.new_world_from_file("./turtlebot.world")
 world.info()
 
 agent = world.get_agent()
@@ -29,10 +33,16 @@ for i in range(10000000):
         random.random() * 0.002
     })
     len = 100
+
     for i in range(len):
         world.step()
     pose = agent.get_pose()
-    # agent.set_pose(((5, random.random() * 5, 0), (0, 0, 0)))
-    # print(pose)        
+    if enable_camera:
+        obs = agent.get_camera_observation(
+            "default::turtlebot::camera::link::camera")
+            
+    npdata = np.array(obs, copy=False)
+    # plt.imshow(npdata)
+    # plt.show()      
     print("steps=%s" % steps +
                      " frame_rate=%s" % (steps / (time.time() - t0)))
