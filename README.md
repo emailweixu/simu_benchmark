@@ -7,8 +7,8 @@ The scene is a turtlebot with 2 randomly moving wheels and a camera sensor.
 
 Pybullet incompatible sensors and plugins were removed from the turtlebot urdf file. The model file contains 2 continuous joints and 30 fixed joints.
 
-# Test Result on Core i7-6700HQ@2.6Ghz, GTX970M
-Note there are 100 substeps per one step)
+# Test Result  ( Core i7-6700HQ@2.6Ghz, GTX970M )
+Note there are 100 substeps per one step
 
 Turtlebot pyBullet without camera sensor:
 54.62 steps/second (5462 substeps/second), ~200% CPU Usage
@@ -25,6 +25,17 @@ Turtlebot pyGazebo without camera sensor:
 
 Turtlebot pyGazebo with camera sensor:
 25.13 steps/second (2513 substeps/second), ~140% CPU Usage
+
+
+
+# btMultiBody and btRigidBody
+
+pyGazebo use Maximal Coordinates method (btRigidBody). btRigidBody is used to simulate single 6-degree of freedom moving objects. btRigidBody is derived from btCollisionObject, so it inherits its world transform, friction and restitution
+and adds linear and angular velocity. btTypedConstraint is the base class for rigid body constraints, including btHingeConstraint, btPoint2PointConstraint, btConeTwistConstraint,btSliderConstraint and btGeneric6DOFconstraint. btDiscreteDynamicsWorld is UserCollisionAlgorithm btCollisionWorld, and
+is a container for rigid bodies and constraints. It provides the stepSimulation to
+proceed.
+
+By pyBullet default, the joints in the URDF file are created using the reduced coordinate method: the joints are simulated using the Featherstone Articulated Body Algorithm (ABA, btMultiBody in Bullet 2.x). btMultiBody is an alternative representation of a rigid body hierarchy using generalized (or reduced) coordinates, using the articulated body algorithm, as discussed by Roy Featherstone. The tree hierarchy starts with a fixed or floating base and child bodies, also called links, are connected by joints: 1-DOF revolute joint (similar to the btHingeConstraint for btRigidBody), 1-DOF prismatic joint (similar to btSliderConstraint).
 
 
 # Install of PyBullet
