@@ -9,7 +9,7 @@ import time
 import psutil
 import os
 
-enable_camera = False
+enable_camera = True
 
 bot.initialize()
 
@@ -25,25 +25,31 @@ print(agent.get_joint_names())
 sleep(1)
 steps = 0
 t0 = time.time()
+interval = 100
+fig = None
 for i in range(10000000):
     steps += 1
     agent.take_action({
         "turtlebot::turtlebot::wheel_left_joint":
-        random.random() * 0.001,
+        random.random() * 0.2 - 0.1,
         "turtlebot::turtlebot::wheel_right_joint":
-        random.random() * 0.002
+        random.random() * 0.2 - 0.1
     })
-    len = 100
-
-    for i in range(len):
-        world.step()
+    world.step(interval)
     pose = agent.get_pose()
 
     if enable_camera:
         obs = agent.get_camera_observation(
             "default::turtlebot::camera::link::camera")        
         npdata = np.array(obs, copy=False)
-    # plt.imshow(npdata)
-    # plt.show()      
-    print("steps=%s" % steps +
-                     " frame_rate=%s" % (steps / (time.time() - t0)))
+        """
+        if fig is None:
+            fig = plt.imshow(npdata)
+        else:
+            fig.set_data(npdata)
+        plt.pause(0.00001)
+        """
+    if (i+1) % interval == 0:
+        print("steps=%s" % interval +
+                     " frame_rate=%s" % (interval / (time.time() - t0)))
+        t0 = time.time()

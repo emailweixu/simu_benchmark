@@ -4,22 +4,23 @@ import random
 import numpy as np
 from time import sleep
 import os
+import matplotlib.pyplot as plt
 
 # enable display
-enable_gui = True
+enable_gui = False
 # enable camera rendering 
-enable_camera = True
+enable_camera = False
 # use open gl or cpu for image rendering
-enable_open_gl_rendering = False
+enable_open_gl_rendering = True
 # use reduced coordinate method Featherstone Articulated Body Algorithm (ABA, btMultiBody in Bullet 2.x)
 #  or use MaximalCoordinates (btRigidBody)
 enable_bt_rigid_body = False
 
 
 def get_image(cam_pos):
-    width = 256
-    height = 256
-    fov = 60
+    width = 320
+    height = 240
+    fov = 90
     aspect = width / height
     near = 0.02
     far = 5
@@ -31,14 +32,13 @@ def get_image(cam_pos):
 
     # Get depth values using the OpenGL renderer
     if enable_open_gl_rendering:
-        images = p.getCameraImage(width, height, view_matrix, projection_matrix, shadow=True,renderer=p.ER_BULLET_HARDWARE_OPENGL)
+        w, h, rgb, depth, seg = p.getCameraImage(width, height, view_matrix, projection_matrix, shadow=True,renderer=p.ER_BULLET_HARDWARE_OPENGL)
     else:
-        images = p.getCameraImage(width, height, view_matrix, projection_matrix, shadow=True, renderer=p.ER_TINY_RENDERER)
+        w, h, rgb, depth, seg = p.getCameraImage(width, height, view_matrix, projection_matrix, shadow=True, renderer=p.ER_TINY_RENDERER)
 
     # depth_buffer = np.reshape(images[3], [width, height])
     # depth = far * near / (far - (far - near) * depth_buffer)
     # seg = np.reshape(images[4],[width,height])*1./255.
-    rgb= np.reshape(images[2], (height, width, 4))*1./255.
     return rgb
 
 
@@ -75,19 +75,30 @@ sleep(1)
 steps = 0
 t0 = time.time()
 
+interval = 100
+fig = None
 while (1):
-    len = 100
     steps += 1
 
-    for i in range(len):
+    #p.setJointMotorControl2(turtle,0,p.VELOCITY_CONTROL,targetVelocity=random.random() * -8.0,force=1000)
+    #p.setJointMotorControl2(turtle,1,p.VELOCITY_CONTROL,targetVelocity=random.random() * -10.0,force=1000)
+    for i in range(interval):
+        p.setJointMotorControl2(turtle, 0, p.TORQUE_CONTROL, force=random.random() * 20)
+        p.setJointMotorControl2(turtle, 1, p.TORQUE_CONTROL, force=random.random() * 20)
         p.stepSimulation()
-        p.setJointMotorControl2(turtle,0,p.VELOCITY_CONTROL,targetVelocity=random.random() * -8.0,force=1000)
-        p.setJointMotorControl2(turtle,1,p.VELOCITY_CONTROL,targetVelocity=random.random() * -10.0,force=1000)
     
     if enable_camera:
         position, orientation = p.getBasePositionAndOrientation(turtle)
         cam_pos = position
-        get_image(cam_pos)
-    
-    print("steps=%s" % steps +
-                     " frame_rate=%s" % (steps / (time.time() - t0)))
+        rgb = get_image(cam_pos)
+        """
+        if fig is None:
+            fig = plt.imshow(rgb)
+        else:
+            fig.set_data(rgb)
+        plt.pause(0.00001)
+"""
+    if (steps + 1) % interval == 0:
+        print("steps=%s" % interval +
+                     " frame_rate=%s" % (interval / (time.time() - t0)))
+        t0 = time.time()
