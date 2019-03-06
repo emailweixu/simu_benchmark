@@ -8,9 +8,9 @@ import os
 # enable display
 enable_gui = True
 # enable camera rendering 
-enable_camera = False
+enable_camera = True
 # use open gl or cpu for image rendering
-enable_open_gl_rendering = True
+enable_open_gl_rendering = False
 # use reduced coordinate method Featherstone Articulated Body Algorithm (ABA, btMultiBody in Bullet 2.x)
 #  or use MaximalCoordinates (btRigidBody)
 enable_bt_rigid_body = False
@@ -75,18 +75,19 @@ sleep(1)
 steps = 0
 t0 = time.time()
 
-if enable_camera:
-    position, orientation = p.getBasePositionAndOrientation(turtle)
-    cam_pos = position
-    get_image(cam_pos)
-
 while (1):
     len = 100
     steps += 1
+
     for i in range(len):
         p.stepSimulation()
         p.setJointMotorControl2(turtle,0,p.VELOCITY_CONTROL,targetVelocity=random.random() * -8.0,force=1000)
         p.setJointMotorControl2(turtle,1,p.VELOCITY_CONTROL,targetVelocity=random.random() * -10.0,force=1000)
-
+    
+    if enable_camera:
+        position, orientation = p.getBasePositionAndOrientation(turtle)
+        cam_pos = position
+        get_image(cam_pos)
+    
     print("steps=%s" % steps +
                      " frame_rate=%s" % (steps / (time.time() - t0)))
